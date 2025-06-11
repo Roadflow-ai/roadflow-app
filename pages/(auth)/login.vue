@@ -31,7 +31,12 @@
 				/>
 			</div>
 		</div>
-
+		<div
+			v-if="errorMessage"
+			class="text-red-600 mt-2 text-center font-semibold"
+		>
+			{{ errorMessage }}
+		</div>
 		<div>
 			<button
 				type="submit"
@@ -53,9 +58,17 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const email = ref('')
 const password = ref('')
+const { login } = useAuth()
 
-const handleLogin = () => {
-	// TODO: Implement actual authentication
-	router.push('/dashboard')
+const errorMessage = ref('')
+
+const handleLogin = async () => {
+	errorMessage.value = ''
+	try {
+		await login(email.value, password.value)
+		router.push('/dashboard')
+	} catch (error) {
+		errorMessage.value = error.message || 'Error en el login'
+	}
 }
 </script>

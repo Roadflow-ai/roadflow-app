@@ -4,7 +4,7 @@
 			Create new account
 		</h2>
 	</div>
-	<form class="mt-8 space-y-6" @submit.prevent="handleLogin">
+	<form class="mt-8 space-y-6" @submit.prevent="signupUser">
 		<div class="rounded-md shadow-sm -space-y-px">
 			<div>
 				<label for="firstname" class="sr-only">First Name</label>
@@ -55,13 +55,33 @@
 				/>
 			</div>
 		</div>
+		<p class="text-gray-400">
+			<small class="mt-0"
+				>* Password format should be min 8 chars, 1 uppercase, 1 lowercase, 1
+				number, 1 special character</small
+			>
+		</p>
+
+		<div
+			v-if="errorMessage"
+			class="text-red-600 mt-2 text-center font-semibold"
+		>
+			{{ errorMessage }}
+		</div>
+
+		<div
+			v-if="successMessage"
+			class="text-green-600 mt-2 text-center font-semibold"
+		>
+			{{ successMessage }}
+		</div>
 
 		<div>
 			<button
 				type="submit"
 				class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-800 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
 			>
-				Sign in
+				Sign up
 			</button>
 		</div>
 	</form>
@@ -71,10 +91,12 @@
 definePageMeta({
 	layout: 'auth'
 })
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const config = useRuntimeConfig()
+
 const form = reactive({
 	firstname: '',
 	lastname: '',
@@ -82,8 +104,40 @@ const form = reactive({
 	password: ''
 })
 
-const handleLogin = () => {
-	// TODO: Implement actual authentication
-	router.push('/dashboard')
+const errorMessage = ref('')
+const successMessage = ref('')
+
+const API = config.public.apiUrl
+
+const signupUser = async () => {
+	errorMessage.value = ''
+	successMessage.value = ''
+
+	try {
+		// TODO: custom function para fecth
+		const res = await fetch(`${API}/signup`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				first_name: form.firstname,
+				last_name: form.lastname,
+				email: form.email,
+				password: form.password
+			})
+		})
+
+		if (!res.ok) {
+			const error = await res.json()
+			errorMessage.value = error.message || 'Error al registrar'
+			return
+		}
+
+		successMessage.value = 'Registro exitoso, por favor inicia sesión'
+		setTimeout(() => {
+			router.push('/login')
+		}, 1500)
+	} catch (error) {
+		errorMessage.value = 'Error en el servidor'
+	}
 }
 </script>

@@ -6,7 +6,9 @@
 				:key="index"
 				:to="`${basePath}/${item.path}`"
 				class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-200 rounded-lg transition-colors"
-				:class="{ 'bg-gray-200': activeRoute === `${basePath}/${item.path}` }"
+				:class="{
+					'bg-green-100': activeRoute === `${basePath}/${item.path}`
+				}"
 			>
 				<component :is="item.icon" class="w-5 h-5 text-gray-600" />
 				<span class="text-gray-800">{{ item.label }}</span>
@@ -25,6 +27,7 @@ const activeRoute = computed(() => route.path)
 
 const menuItems = [
 	{ label: 'Home', path: '', icon: 'HomeIcon' },
+	{ label: 'Workflows', path: 'workflows', icon: 'WorkflowIcon' },
 	{ label: 'Engineering', path: 'engineering', icon: 'CodeIcon' },
 	{ label: 'Product', path: 'product', icon: 'ProductIcon' },
 	{ label: 'Operations', path: 'operations', icon: 'OperationsIcon' },

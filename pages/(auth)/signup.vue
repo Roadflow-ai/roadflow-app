@@ -85,6 +85,10 @@
 			</button>
 		</div>
 	</form>
+	<p>
+		Already have an account?
+		<NuxtLink to="/login" class="text-green-500 font-bold">Log in</NuxtLink>.
+	</p>
 </template>
 
 <script setup>

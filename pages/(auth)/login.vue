@@ -46,6 +46,12 @@
 			</button>
 		</div>
 	</form>
+	<p>
+		Don't have an account?
+		<NuxtLink to="/signup" class="text-green-500 font-bold"
+			>Sign up here</NuxtLink
+		>.
+	</p>
 </template>
 
 <script setup>

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useCookie, useRuntimeConfig } from 'nuxt/app'
 
 export const useUserStore = defineStore('user', () => {
-	const user = ref(null)
+	const organizationId = ref(null)
 	const token = useCookie('auth_token')
 	const config = useRuntimeConfig()
 	const API = config.public.apiUrl
@@ -41,7 +41,7 @@ export const useUserStore = defineStore('user', () => {
 
 	async function fetchUser() {
 		if (!token.value) {
-			user.value = null
+			organizationId.value = null
 			return
 		}
 
@@ -57,21 +57,22 @@ export const useUserStore = defineStore('user', () => {
 			}
 
 			const userData = await res.json()
-			user.value = userData[0].userId
+
+			organizationId.value = userData[0].organizationId
 		} catch (error) {
-			user.value = null
+			organizationId.value = null
 			token.value = null
 		}
 	}
 
 	function logout() {
 		token.value = null
-		user.value = null
+		organizationId.value = null
 	}
 
 	function isAuthenticated() {
 		return Boolean(token.value)
 	}
 
-	return { user, token, login, logout, isAuthenticated, fetchUser }
+	return { organizationId, token, login, logout, isAuthenticated, fetchUser }
 })

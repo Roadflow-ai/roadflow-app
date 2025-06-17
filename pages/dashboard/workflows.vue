@@ -12,7 +12,7 @@
 			</div>
 		</div>
 
-		<template v-if="status === 'pending'">
+		<template v-if="pending">
 			<p>Loading workflows...</p>
 		</template>
 
@@ -65,22 +65,25 @@
 </template>
 
 <script setup>
-useSeoMeta({
-	title: 'Workflows'
-})
+import { computed } from 'vue'
+
+useSeoMeta({ title: 'Workflows' })
+
 const open = ref(false)
+const userStore = useUserStore()
 
-const { user, fetchUser } = useUserStore()
-
-const userId = user
-
-if (!userId) {
-	await fetchUser()
+if (!userStore.organizationId) {
+	await userStore.fetchUser()
 }
 
-const { data, status } = await useApi(`workflow/${userId}`, {
-	lazy: true
-})
+const organizationId = computed(() => userStore.organizationId)
+
+const { data, status, pending } = await useApi(
+	`workflow/${organizationId.value}`,
+	{
+		lazy: true
+	}
+)
 
 const workflows = computed(() => data.value?.data ?? [])
 

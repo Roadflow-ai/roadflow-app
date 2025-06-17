@@ -60,11 +60,12 @@ definePageMeta({
 })
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../../stores/user'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
-const { login } = useAuth()
+const { login } = useUserStore()
 
 const errorMessage = ref('')
 

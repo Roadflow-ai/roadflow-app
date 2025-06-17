@@ -4,5 +4,8 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Growth'
+})
 // Lógica específica para Growth
 </script>

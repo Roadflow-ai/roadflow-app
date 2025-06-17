@@ -4,5 +4,8 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Product'
+})
 // Lógica específica para Producto
 </script>

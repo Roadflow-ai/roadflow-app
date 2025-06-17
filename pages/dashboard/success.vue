@@ -4,5 +4,8 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Success'
+})
 // Lógica específica para Customer Success
 </script>

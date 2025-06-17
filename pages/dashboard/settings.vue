@@ -4,5 +4,8 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Settings'
+})
 // Lógica específica para Configuración
 </script>

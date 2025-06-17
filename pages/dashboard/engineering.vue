@@ -71,6 +71,9 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Engineering'
+})
 const apiDocs = [
 	{
 		title: 'Authentication API',

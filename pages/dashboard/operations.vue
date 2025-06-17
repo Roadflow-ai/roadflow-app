@@ -4,5 +4,8 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Operations'
+})
 // Lógica específica para Operaciones
 </script>

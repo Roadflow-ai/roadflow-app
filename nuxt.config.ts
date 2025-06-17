@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-	modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode'],
+	modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@pinia/nuxt'],
 	runtimeConfig: {
 		public: {
 			apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:3000'

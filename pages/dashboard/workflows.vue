@@ -50,18 +50,7 @@
 		</template>
 	</section>
 
-	<ModalWrapper v-if="open">
-		<div class="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-			<button
-				type="button"
-				class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
-				@click="open = false"
-				ref="cancelButtonRef"
-			>
-				Cancel
-			</button>
-		</div>
-	</ModalWrapper>
+	<WorkflowsAddWorkflow :open="open" @close="open = false" />
 </template>
 
 <script setup>

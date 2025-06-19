@@ -38,6 +38,7 @@
 							class="hover:bg-green-100 hover:cursor-pointer bg-gray-100 border-t border-green-500"
 							v-for="workflow in workflows"
 							:key="workflow._id"
+							@click="$router.push(`${$route.path}/${workflow._id}`)"
 						>
 							<td class="p-3 w-3/5">{{ workflow.prompt }}</td>
 							<td class="p-3 w-1/5 text-right text-gray-400">
@@ -50,7 +51,11 @@
 		</template>
 	</section>
 
-	<WorkflowsAddWorkflow :open="open" @close="open = false" />
+	<WorkflowsAddWorkflow
+		:open="open"
+		@close="open = false"
+		@added="refreshWorkflows"
+	/>
 </template>
 
 <script setup>
@@ -67,12 +72,16 @@ if (!userStore.organizationId) {
 
 const organizationId = computed(() => userStore.organizationId)
 
-const { data, status, pending } = await useApi(
+const { data, status, pending, refresh } = await useApi(
 	`workflow/${organizationId.value}`,
 	{
 		lazy: true
 	}
 )
+
+const refreshWorkflows = () => {
+	refresh()
+}
 
 const workflows = computed(() => data.value?.data ?? [])
 
@@ -88,6 +97,6 @@ const formatWorkflowDate = (dateString) => {
 		hour: '2-digit',
 		minute: '2-digit'
 	}
-	return date.toLocaleString(undefined, options)
+	return date.toLocaleString('es', options)
 }
 </script>

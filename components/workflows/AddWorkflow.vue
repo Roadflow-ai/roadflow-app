@@ -165,13 +165,13 @@ const props = defineProps({
 	}
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'added'])
 const { organizationId } = useUserStore()
 const showDropdown = ref(false)
 const isSubmitting = ref(false)
 const generalError = ref('')
 
-const formData = reactive({
+const formData = shallowReactive({
 	prompt: '',
 	is_head: true,
 	events: [],
@@ -231,11 +231,12 @@ const handleSubmit = async () => {
 
 	try {
 		await useApi(`workflow/${organizationId}/workflow`, {
+			lazy: true,
 			method: 'POST',
-			server: false,
-			body: formData
+			body: { ...formData }
 		})
 
+		emit('added')
 		handleCancel()
 	} catch (error) {
 		generalError.value =
@@ -259,13 +260,4 @@ const handleCancel = () => {
 	resetForm()
 	emit('close')
 }
-
-watch(
-	() => props.open,
-	(newVal) => {
-		if (newVal) {
-			resetForm()
-		}
-	}
-)
 </script>

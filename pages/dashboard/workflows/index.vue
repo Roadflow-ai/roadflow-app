@@ -67,7 +67,7 @@ const open = ref(false)
 const userStore = useUserStore()
 
 if (!userStore.organizationId) {
-	await userStore.fetchUser()
+	await userStore.fetchOrganization()
 }
 
 const organizationId = computed(() => userStore.organizationId)

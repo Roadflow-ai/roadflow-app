@@ -65,7 +65,7 @@ const showAddNode = ref(false)
 const showDeleteWorkflow = ref(false)
 
 if (!userStore.organizationId) {
-	await userStore.fetchUser()
+	await userStore.fetchOrganization()
 }
 
 const organizationId = computed(() => userStore.organizationId)

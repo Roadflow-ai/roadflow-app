@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="bg-white p-5 rounded-xl shadow-sm min-w-56 w-fit max-w-96 relative min-h-44 flex flex-col justify-between"
+		class="bg-white p-5 rounded-xl shadow-sm w-full relative min-h-44 flex flex-col justify-between"
 		@mouseleave="menuOpen = false"
 	>
 		<header class="flex items-start justify-between gap-4">
@@ -55,7 +55,10 @@
 				function: {{ function_name }}
 			</p>
 
-			<p v-if="parameters" class="text-sm text-gray-600 mb-4 capitalize">
+			<p
+				v-if="Object.keys(parameters).length"
+				class="text-sm text-gray-600 mb-4 capitalize"
+			>
 				parameters: {{ parameters }}
 			</p>
 		</div>

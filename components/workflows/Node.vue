@@ -33,14 +33,14 @@
 						class="block w-full text-left px-4 py-2 hover:bg-gray-200 text-gray-700 focus:outline-none"
 						type="button"
 					>
-						Editar
+						Edit
 					</button>
 					<button
 						@click="handleDelete"
 						class="block w-full text-left px-4 py-2 hover:bg-red-200 hover:rounded-b text-red-600 focus:outline-none"
 						type="button"
 					>
-						Eliminar
+						Delete
 					</button>
 				</div>
 			</template>
@@ -83,7 +83,7 @@
 			:open="showModal"
 			@close="showModal = false"
 			:nodeId="nodeId"
-			@edited="emit('eddited', $event)"
+			@edited="emit('edited', $event)"
 		/>
 		<WorkflowsDeleteNode
 			:open="showDeleteModal"

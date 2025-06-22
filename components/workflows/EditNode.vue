@@ -86,39 +86,6 @@
 						{{ errors.parameters_subject }}
 					</p>
 				</div>
-
-				<!-- Required Toggle -->
-				<div class="mt-4">
-					<label class="block text-sm font-medium text-gray-700 mb-2">
-						Required
-					</label>
-					<div class="flex items-center">
-						<button
-							type="button"
-							@click="toggleRequired"
-							:class="[
-								'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none',
-								formData.parameters.required ? 'bg-green-600' : 'bg-gray-200',
-								errors.parameters_required ? 'ring-2 ring-red-500' : ''
-							]"
-						>
-							<span
-								:class="[
-									'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-									formData.parameters.required
-										? 'translate-x-6'
-										: 'translate-x-1'
-								]"
-							/>
-						</button>
-					</div>
-					<p
-						v-if="errors.parameters_required"
-						class="mt-1 text-sm text-red-600"
-					>
-						{{ errors.parameters_required }}
-					</p>
-				</div>
 			</div>
 
 			<!-- Buttons -->
@@ -171,24 +138,21 @@ const formData = shallowReactive({
 	task_template_id: '',
 	parameters: {
 		to: '',
-		Subject: '',
-		required: false
+		Subject: ''
 	}
 })
 
 const errors = ref({
 	task_template_id: '',
 	parameters_to: '',
-	parameters_subject: '',
-	parameters_required: ''
+	parameters_subject: ''
 })
 
 const clearErrors = () => {
 	errors.value = {
 		task_template_id: '',
 		parameters_to: '',
-		parameters_subject: '',
-		parameters_required: ''
+		parameters_subject: ''
 	}
 }
 
@@ -206,10 +170,6 @@ const validateForm = () => {
 	}
 	if (!formData.parameters.Subject) {
 		errors.value.parameters_subject = 'Subject (Parameters) is required'
-		isValid = false
-	}
-	if (formData.parameters.required !== true) {
-		errors.value.parameters_required = 'This field is required'
 		isValid = false
 	}
 
@@ -241,15 +201,7 @@ const resetForm = () => {
 	formData.task_template_id = ''
 	formData.parameters.to = ''
 	formData.parameters.Subject = ''
-	formData.parameters.required = false
 	clearErrors()
-}
-
-const toggleRequired = () => {
-	formData.parameters.required = !formData.parameters.required
-	if (formData.parameters.required) {
-		errors.value.parameters_required = ''
-	}
 }
 
 const handleCancel = () => {

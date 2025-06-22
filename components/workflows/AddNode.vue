@@ -87,32 +87,6 @@
 						{{ errors.parameters_subject }}
 					</p>
 				</div>
-
-				<!-- Toggle Field -->
-				<div class="mt-4">
-					<label class="block text-sm font-medium text-gray-700 mb-2">
-						Is Required?
-					</label>
-					<div class="flex items-center">
-						<button
-							type="button"
-							@click="toggleRequired"
-							:class="[
-								'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none',
-								formData.parameters.required ? 'bg-green-600' : 'bg-gray-200'
-							]"
-						>
-							<span
-								:class="[
-									'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-									formData.parameters.required
-										? 'translate-x-6'
-										: 'translate-x-1'
-								]"
-							/>
-						</button>
-					</div>
-				</div>
 			</div>
 
 			<div class="flex justify-end space-x-3 pt-4">
@@ -133,7 +107,7 @@
 							: 'bg-green-700 text-white hover:bg-green-800'
 					]"
 				>
-					{{ isSubmitting ? 'Loading...' : 'Update' }}
+					{{ isSubmitting ? 'Loading...' : 'Add Node' }}
 				</button>
 			</div>
 		</form>
@@ -167,8 +141,7 @@ const formData = shallowReactive({
 	task_template_id: '',
 	parameters: {
 		to: '',
-		Subject: '',
-		required: false
+		Subject: ''
 	}
 })
 
@@ -240,15 +213,7 @@ const resetForm = () => {
 	formData.task_template_id = ''
 	formData.parameters.to = ''
 	formData.parameters.Subject = ''
-	formData.parameters.required = false
 	clearErrors()
-}
-
-const toggleRequired = () => {
-	formData.parameters.required = !formData.parameters.required
-	if (formData.parameters.required) {
-		errors.valu
-	}
 }
 
 const handleCancel = () => {

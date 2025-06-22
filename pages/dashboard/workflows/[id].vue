@@ -19,10 +19,7 @@
 		</header>
 		<div v-if="pending">Cargando flujo de trabajo...</div>
 		<div v-else-if="error">Error al cargar flujo de trabajo</div>
-		<div
-			v-else
-			class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4"
-		>
+		<div v-else class="grid grid-cols-[repeat(auto-fit,300px)] gap-4">
 			<WorkflowsNode
 				v-for="node in rawNodes"
 				:key="node._id"

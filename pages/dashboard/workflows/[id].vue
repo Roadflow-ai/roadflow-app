@@ -19,7 +19,7 @@
     </header>
     <div v-if="pending">Cargando flujo de trabajo...</div>
     <div v-else-if="error">Error al cargar flujo de trabajo</div>
-    <div class="flex gap-5" v-else>
+    <div v-else class="grid grid-cols-[repeat(auto-fit,300px)] gap-4">
       <WorkflowsNode
         v-for="node in rawNodes"
         :key="node._id"
@@ -60,18 +60,12 @@ useSeoMeta({ title: "Workflow" });
 const route = useRoute();
 
 const workflowId = ref(route.params.id);
-const userStore = useUserStore();
+const { organizationId } = useUserStore();
 const showAddNode = ref(false);
 const showDeleteWorkflow = ref(false);
 
-if (!userStore.organizationId) {
-  await userStore.fetchOrganization();
-}
-
-const organizationId = computed(() => userStore.organizationId);
-
 const { data, refresh, pending, error } = await useApi(
-  `workflow/${organizationId.value}/nodes/${workflowId.value}`
+  `workflow/${organizationId}/nodes/${workflowId.value}`
 );
 
 const rawNodes = computed(() => data.value?.data || []);

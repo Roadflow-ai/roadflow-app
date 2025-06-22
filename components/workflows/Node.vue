@@ -104,7 +104,7 @@ const props = defineProps({
 	function_name: String,
 	isHead: Boolean,
 	isTask: Boolean,
-	parameters: String
+	parameters: Object
 })
 const emit = defineEmits(['edited', 'delete'])
 

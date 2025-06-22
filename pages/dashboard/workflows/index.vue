@@ -64,16 +64,10 @@ import { computed } from 'vue'
 useSeoMeta({ title: 'Workflows' })
 
 const open = ref(false)
-const userStore = useUserStore()
-
-if (!userStore.organizationId) {
-	await userStore.fetchOrganization()
-}
-
-const organizationId = computed(() => userStore.organizationId)
+const { organizationId } = useUserStore()
 
 const { data, status, pending, refresh } = await useApi(
-	`workflow/${organizationId.value}`,
+	`workflow/${organizationId}`,
 	{
 		lazy: true
 	}

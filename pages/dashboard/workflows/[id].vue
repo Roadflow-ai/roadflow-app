@@ -60,18 +60,12 @@ useSeoMeta({ title: 'Workflow' })
 const route = useRoute()
 
 const workflowId = ref(route.params.id)
-const userStore = useUserStore()
+const { organizationId } = useUserStore()
 const showAddNode = ref(false)
 const showDeleteWorkflow = ref(false)
 
-if (!userStore.organizationId) {
-	await userStore.fetchOrganization()
-}
-
-const organizationId = computed(() => userStore.organizationId)
-
 const { data, refresh, pending, error } = await useApi(
-	`workflow/${organizationId.value}/nodes/${workflowId.value}`
+	`workflow/${organizationId}/nodes/${workflowId.value}`
 )
 
 const rawNodes = computed(() => data.value?.data || [])

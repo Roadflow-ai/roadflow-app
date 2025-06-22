@@ -39,14 +39,22 @@
 					v-model="formData.agent"
 					required
 					:class="[
-						'bg-gray-50 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2',
+						'bg-gray-50 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 capitalize',
 						errors.agent
 							? 'border-red-300 focus:ring-red-500 focus:border-red-500'
 							: 'border-gray-300 focus:ring-green-500 focus:border-green-500'
 					]"
 				>
 					<option value="">Select an agent</option>
-					<option value="engineering">Engineering</option>
+
+					<option
+						v-for="agent in agentsList"
+						:key="agent"
+						value="agent"
+						class="capitalize"
+					>
+						{{ agent }}
+					</option>
 				</select>
 				<p v-if="errors.agent" class="mt-1 text-sm text-red-600">
 					{{ errors.agent }}
@@ -170,6 +178,9 @@ const { organizationId } = useUserStore()
 const showDropdown = ref(false)
 const isSubmitting = ref(false)
 const generalError = ref('')
+
+const { data } = await useApi(`agents/${organizationId}/all`)
+const agentsList = computed(() => data?.value?.data || [])
 
 const formData = shallowReactive({
 	prompt: '',

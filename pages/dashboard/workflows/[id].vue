@@ -4,10 +4,16 @@
 			<h3 class="text-2xl font-semibold text-gray-900">Workflow</h3>
 			<div class="flex space-x-4">
 				<button
-					@click="open = true"
+					@click="showAddNode = true"
 					class="bg-green-700 text-white px-4 py-2 rounded-full hover:bg-green-800"
 				>
 					Add Node
+				</button>
+				<button
+					@click="showDeleteWorkflow = true"
+					class="px-4 py-2 text-gray-600 bg-gray-100 border border-gray-200 rounded-full hover:bg-gray-200 transition-colors"
+				>
+					Edit Workflow
 				</button>
 			</div>
 		</header>
@@ -24,6 +30,7 @@
 				:enabled="node.enabled"
 				:isHead="node.is_head"
 				:isTask="node.is_task"
+				:parameters="node.parameters"
 				:createdAt="node.createdAt"
 				@edited="refreshNodes"
 				@deleted="refreshNodes"
@@ -35,8 +42,14 @@
 		</div>
 		<WorkflowsAddNode
 			@added="refreshNodes"
-			:open="open"
-			@close="open = false"
+			:open="showAddNode"
+			@close="showAddNode = false"
+		/>
+		<WorkflowsDeleteWorkflow
+			:organizationId="organizationId"
+			:workflowId="workflowId"
+			:open="showDeleteWorkflow"
+			@close="showDeleteWorkflow = false"
 		/>
 	</div>
 </template>
@@ -48,7 +61,8 @@ const route = useRoute()
 
 const workflowId = ref(route.params.id)
 const userStore = useUserStore()
-const open = ref(false)
+const showAddNode = ref(false)
+const showDeleteWorkflow = ref(false)
 
 if (!userStore.organizationId) {
 	await userStore.fetchUser()

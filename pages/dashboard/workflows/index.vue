@@ -49,13 +49,12 @@
         </table>
       </div>
     </template>
+    <WorkflowsAddWorkflow
+      :open="open"
+      @close="open = false"
+      @added="refreshWorkflows"
+    />
   </section>
-
-  <WorkflowsAddWorkflow
-    :open="open"
-    @close="open = false"
-    @added="refreshWorkflows"
-  />
 </template>
 
 <script setup>

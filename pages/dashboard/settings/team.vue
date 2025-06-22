@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full h-full">
+  <div class="flex flex-col w-full h-full gap-8">
     <div class="flex flex-col">
       <h3 class="text-2xl font-semibold text-gray-900 mb-4">Members</h3>
       <div v-if="status === 'error'" class="text-red-500">
@@ -10,10 +10,14 @@
       </div>
       <div
         v-else-if="members.length > 0 && status === 'success'"
-        class="flex flex-wrap justify-between items-start gap-4"
+        class="flex flex-wrap justify-between items-start gap-4 w-full h-full"
       >
-        <ul class="text-gray-500 bg-slate-100 rounded-xl px-4 py-6 w-1/3">
-          <li :key="member.userId" v-for="member in members" class="mb-4">
+        <ul class="flex flex-wrap items-start gap-4 w-full h-full">
+          <li
+            :key="member.userId"
+            v-for="member in members"
+            class="mb-4 text-gray-500 bg-slate-100 rounded-xl px-4 py-6 w-80"
+          >
             <div class="flex items-center space-x-4">
               <img
                 v-if="member?.avatarUrl"
@@ -40,7 +44,8 @@
     </div>
 
     <div class="flex flex-col">
-      
+      <h3 class="text-2xl font-semibold text-gray-900 mb-4">Invitations</h3>
+      <SettingsTeamInvitations />
     </div>
   </div>
 </template>

@@ -1,3 +1,10 @@
+<script setup>
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '~/stores/user'
+const userStore = useUserStore()
+const { organization } = storeToRefs(userStore)
+</script>
+
 <template>
 	<div class="h-screen flex flex-col p-2 bg-gray-50">
 		<picture>
@@ -5,7 +12,7 @@
 			<img src="/roadflow.png" alt="Roadflow Logo" class="h-10" />
 		</picture>
 
-		<div class="h-full flex items-center justify-center flex-col gap-5">
+		<div class="h-full flex items-center justify-center flex-col gap-5">			
 			<h1 class="text-center text-3xl font-extrabold text-gray-900">
 				Welcome to Roadflow
 			</h1>

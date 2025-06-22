@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia'
 import { useCookie, useRuntimeConfig } from 'nuxt/app'
+import { ref, computed } from 'vue'
 
 export const useUserStore = defineStore('user', () => {
 	const organizationId = ref(null)
+	const organization = ref<any>(null)
 	const token = useCookie('auth_token')
+	const userData = ref<any>(null)
 	const config = useRuntimeConfig()
 	const API = config.public.apiUrl
 
@@ -22,15 +25,18 @@ export const useUserStore = defineStore('user', () => {
 				throw new Error(message)
 			}
 
-			const { access_token } = result.data || {}
+			const data = result.data || {}
+			const { access_token } = data
 
 			if (!access_token) {
 				throw new Error('Token de autenticación no recibido')
 			}
 
 			token.value = access_token
+			userData.value = data
 
-			await fetchUser()
+			// Obtener la organización después del login
+			await fetchOrganization()
 
 			return true
 		} catch (error: any) {
@@ -39,9 +45,10 @@ export const useUserStore = defineStore('user', () => {
 		}
 	}
 
-	async function fetchUser() {
+	async function fetchOrganization() {
 		if (!token.value) {
 			organizationId.value = null
+			organization.value = null
 			return
 		}
 
@@ -53,14 +60,15 @@ export const useUserStore = defineStore('user', () => {
 			})
 
 			if (!res.ok) {
-				throw new Error('No se pudo obtener datos del usuario')
+				throw new Error('No se pudo obtener datos de la organización')
 			}
 
-			const userData = await res.json()
-
-			organizationId.value = userData[0].organizationId
+			const orgs = await res.json()
+			organizationId.value = orgs[0]?.organizationId || null
+			organization.value = orgs[0]?.organization || null
 		} catch (error) {
 			organizationId.value = null
+			organization.value = null
 			token.value = null
 		}
 	}
@@ -68,11 +76,20 @@ export const useUserStore = defineStore('user', () => {
 	function logout() {
 		token.value = null
 		organizationId.value = null
+		organization.value = null
+		userData.value = null
 	}
 
 	function isAuthenticated() {
 		return Boolean(token.value)
 	}
 
-	return { organizationId, token, login, logout, isAuthenticated, fetchUser }
+	const authorizationHeader = computed(() => {
+		if (userData.value?.access_token) {
+			return `Bearer ${userData.value.access_token}`
+		}
+		return ''
+	})
+
+	return { organizationId, organization, token, login, logout, isAuthenticated, fetchOrganization, userData, authorizationHeader }
 })

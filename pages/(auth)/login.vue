@@ -1,7 +1,8 @@
 <template>
-	<div>
+	<div class="flex flex-col items-center">
+		<img src="/roadflow.png" alt="Roadflow Logo" class="mb-8 w-42 h-20 object-contain" />
 		<h2 class="text-center text-3xl font-extrabold text-gray-900">
-			Sign in to Roadflow
+			Sign in 
 		</h2>
 	</div>
 	<form class="mt-8 space-y-6" @submit.prevent="handleLogin">

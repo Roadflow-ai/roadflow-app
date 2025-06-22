@@ -1,5 +1,6 @@
 <template>
-	<div>
+	<div class="flex flex-col items-center">
+		<img src="/roadflow.png" alt="Roadflow Logo" class="mb-8 w-42 h-20 object-contain" />
 		<h2 class="text-center text-3xl capitalize font-extrabold text-gray-900">
 			Create new account
 		</h2>

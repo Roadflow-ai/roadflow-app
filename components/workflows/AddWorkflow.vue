@@ -50,7 +50,7 @@
 					<option
 						v-for="agent in agentsList"
 						:key="agent"
-						value="agent"
+						:value="agent"
 						class="capitalize"
 					>
 						{{ agent }}
@@ -209,7 +209,7 @@ const validateForm = () => {
 	clearErrors()
 	let isValid = true
 
-	// Validar prompt
+	// Validate prompt
 	if (!formData.prompt.trim()) {
 		errors.value.prompt = 'Prompt is required'
 		isValid = false
@@ -218,13 +218,13 @@ const validateForm = () => {
 		isValid = false
 	}
 
-	// Validar agent
+	// Validate agent
 	if (!formData.agent) {
 		errors.value.agent = 'Agent is required'
 		isValid = false
 	}
 
-	// Validar events
+	// Validate events
 	if (formData.events.length === 0) {
 		errors.value.events = 'At least one event must be selected'
 		isValid = false

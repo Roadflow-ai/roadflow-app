@@ -7,10 +7,15 @@ const { organization } = storeToRefs(userStore)
 
 <template>
 	<div class="h-screen flex flex-col p-2 bg-gray-50">
-		<picture>
-			<source srcset="/roadflow.png" type="image/png" />
-			<img src="/roadflow.png" alt="Roadflow Logo" class="h-10" />
-		</picture>
+		<UiImageWithFallback
+			src="/roadflow.png"
+			alt="Roadflow Logo"
+			fallback-type="logo"
+			image-class="h-10 w-auto object-contain"
+			fallback-class="h-10 flex items-center justify-center"
+			container-class="h-10 flex items-center"
+			icon-size="w-8 h-8"
+		/>
 
 		<div class="h-full flex items-center justify-center flex-col gap-5">			
 			<h1 class="text-center text-3xl font-extrabold text-gray-900">

@@ -1,10 +1,18 @@
-import { defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app'
-import { useUserStore } from '../stores/user'
+import { defineNuxtRouteMiddleware, navigateTo, useCookie } from "nuxt/app";
+import { useUserStore } from "../stores/user";
 
-export default defineNuxtRouteMiddleware((to, from) => {
-	const { isAuthenticated } = useUserStore()
+export default defineNuxtRouteMiddleware(async (to) => {
+  const { isAuthenticated, fetchOrganization, organization } = useUserStore();
 
-	if (!isAuthenticated() && !['/login', '/signup'].includes(to.path)) {
-		return navigateTo('/login')
-	}
-})
+  if (import.meta.client && !organization) {
+    await fetchOrganization();
+  }
+
+  const publicPages = ["/login", "/signup", "/verify"];
+
+  if (!isAuthenticated() && !publicPages.includes(to.path)) {
+    const redirectCookie = useCookie("redirectTo");
+    redirectCookie.value = to.fullPath;
+    return navigateTo("/login");
+  }
+});

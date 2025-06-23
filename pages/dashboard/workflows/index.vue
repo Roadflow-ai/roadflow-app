@@ -30,7 +30,7 @@
           <thead>
             <tr class="bg-green-100">
               <th class="text-left p-3">Prompt</th>
-              <th class="p-3 text-right text-gray-400">Fecha</th>
+              <th class="p-3 text-right text-gray-400">Date</th>
             </tr>
           </thead>
           <tbody>
@@ -79,7 +79,7 @@ const refreshWorkflows = () => {
 const workflows = computed(() => data.value?.data ?? []);
 
 const formatWorkflowDate = (dateString) => {
-  if (!dateString) return "Fecha no disponible";
+  if (!dateString) return "Date not available";
 
   const date = new Date(dateString);
 
@@ -90,6 +90,6 @@ const formatWorkflowDate = (dateString) => {
     hour: "2-digit",
     minute: "2-digit",
   };
-  return date.toLocaleString("es", options);
+  return date.toLocaleString("en", options);
 };
 </script>

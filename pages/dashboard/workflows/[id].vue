@@ -17,8 +17,8 @@
         </button>
       </div>
     </header>
-    <div v-if="pending">Cargando flujo de trabajo...</div>
-    <div v-else-if="error">Error al cargar flujo de trabajo</div>
+    <div v-if="pending">Loading workflow...</div>
+    <div v-else-if="error">Error loading workflow</div>
     <div v-else class="grid grid-cols-[repeat(auto-fit,300px)] gap-4">
       <WorkflowsNode
         v-for="node in rawNodes"
@@ -37,7 +37,7 @@
       />
 
       <div v-if="rawNodes.length === 0" class="empty-state">
-        No se encontraron nodos.
+        No nodes found.
       </div>
     </div>
     <WorkflowsAddNode

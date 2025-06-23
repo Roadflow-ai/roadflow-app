@@ -81,7 +81,7 @@ const handleLogin = async () => {
 
 		await navigateTo(redirectTo)
 	} catch (error) {
-		errorMessage.value = error.message || 'Error en el login'
+		errorMessage.value = error.message || 'Login error'
 	}
 }
 </script>

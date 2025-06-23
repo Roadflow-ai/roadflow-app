@@ -119,7 +119,7 @@ const signupUser = async () => {
 	successMessage.value = ''
 
 	try {
-		// TODO: custom function para fecth
+		// TODO: custom function for fetch
 		const res = await fetch(`${API}/signup`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -133,16 +133,16 @@ const signupUser = async () => {
 
 		if (!res.ok) {
 			const error = await res.json()
-			errorMessage.value = error.message || 'Error al registrar'
+			errorMessage.value = error.message || 'Registration error'
 			return
 		}
 
-		successMessage.value = 'Registro exitoso, por favor inicia sesión'
+		successMessage.value = 'Registration successful, please log in'
 		setTimeout(() => {
 			router.push('/login')
 		}, 1500)
 	} catch (error) {
-		errorMessage.value = 'Error en el servidor'
+		errorMessage.value = 'Server error'
 	}
 }
 </script>

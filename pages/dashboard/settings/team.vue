@@ -19,15 +19,15 @@
             class="mb-4 text-gray-500 bg-slate-100 rounded-xl px-4 py-6 w-80"
           >
             <div class="flex items-center space-x-4">
-              <img
-                v-if="member?.avatarUrl"
+              <UiImageWithFallback
                 :src="member?.avatarUrl"
                 alt="Avatar"
-                class="w-10 h-10 rounded-full"
+                fallback-type="user"
+                image-class="w-10 h-10 rounded-full object-cover"
+                fallback-class="w-10 h-10 rounded-full flex items-center justify-center"
+                container-class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0"
+                icon-size="w-6 h-6"
               />
-              <div v-else>
-                <Icon name="uil:user-circle" size="30" />
-              </div>
               <div>
                 <h3 class="text-lg font-semibold capitalize">
                   {{ member.first_name }} {{ member.last_name }}

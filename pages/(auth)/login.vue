@@ -1,9 +1,12 @@
 <template>
 	<div class="flex flex-col items-center">
-		<img
+		<UiImageWithFallback
 			src="/roadflow.png"
 			alt="Roadflow Logo"
-			class="mb-8 w-42 h-20 object-contain"
+			fallback-type="logo"
+			image-class="mb-8 w-42 h-20 object-contain"
+			fallback-class="mb-8 w-42 h-20"
+			icon-size="w-16 h-16"
 		/>
 		<h2 class="text-center text-3xl font-extrabold text-gray-900">Sign in</h2>
 	</div>

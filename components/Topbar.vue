@@ -2,7 +2,15 @@
   <header
     class="h-16 bg-white shadow-sm flex items-center justify-between px-6"
   >
-    <img src="/roadflow.png" alt="Roadflow Logo" class="h-10" />
+    <UiImageWithFallback
+      src="/roadflow.png"
+      alt="Roadflow Logo"
+      fallback-type="logo"
+      image-class="h-10 w-auto object-contain"
+      fallback-class="h-10 flex items-center justify-center"
+      container-class="h-10 flex items-center"
+      icon-size="w-8 h-8"
+    />
     <span
       v-if="userStore.userData?.first_name"
       class="ml-6 text-lg font-semibold text-gray-700 capitalize"

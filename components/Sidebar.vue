@@ -28,6 +28,7 @@ const activeRoute = computed(() => route.path)
 const menuItems = [
 	{ label: 'Home', path: '', icon: 'HomeIcon' },
 	{ label: 'Workflows', path: 'workflows', icon: 'WorkflowIcon' },
+	{ label: 'Roadmap', path: 'roadmap', icon: 'RoadIcon' },
 	{ label: 'Engineering', path: 'engineering', icon: 'CodeIcon' },
 	{ label: 'Product', path: 'product', icon: 'ProductIcon' },
 	{ label: 'Operations', path: 'operations', icon: 'OperationsIcon' },

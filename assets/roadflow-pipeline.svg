@@ -1,0 +1,16 @@
+<svg width="600" height="120" viewBox="0 0 600 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="40" width="90" height="40" rx="12" fill="#059669"/>
+  <text x="65" y="65" text-anchor="middle" alignment-baseline="middle" font-size="16" fill="white" font-family="sans-serif">Engineering</text>
+  <rect x="130" y="40" width="90" height="40" rx="12" fill="#047857"/>
+  <text x="175" y="65" text-anchor="middle" alignment-baseline="middle" font-size="16" fill="white" font-family="sans-serif">Product</text>
+  <rect x="240" y="40" width="110" height="40" rx="12" fill="#10B981"/>
+  <text x="295" y="65" text-anchor="middle" alignment-baseline="middle" font-size="16" fill="white" font-family="sans-serif">Operations</text>
+  <rect x="370" y="40" width="120" height="40" rx="12" fill="#34D399"/>
+  <text x="430" y="65" text-anchor="middle" alignment-baseline="middle" font-size="16" fill="#065F46" font-family="sans-serif">Customer Success</text>
+  <rect x="510" y="40" width="70" height="40" rx="12" fill="#A7F3D0"/>
+  <text x="545" y="65" text-anchor="middle" alignment-baseline="middle" font-size="16" fill="#065F46" font-family="sans-serif">Growth</text>
+  <polygon points="110,60 130,60 130,65 110,65" fill="#047857"/>
+  <polygon points="220,60 240,60 240,65 220,65" fill="#10B981"/>
+  <polygon points="350,60 370,60 370,65 350,65" fill="#34D399"/>
+  <polygon points="490,60 510,60 510,65 490,65" fill="#A7F3D0"/>
+</svg>

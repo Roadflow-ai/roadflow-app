@@ -22,9 +22,11 @@
 				<ContentCard
 					v-for="(item, index) in apiDocs"
 					:key="index"
+					:id="index + 1"
 					:title="item.title"
 					:description="item.description"
 					:image="item.image"
+					@view="goToContent"
 				/>
 			</div>
 		</div>
@@ -35,9 +37,11 @@
 				<ContentCard
 					v-for="(item, index) in codeDocs"
 					:key="index"
+					:id="index + 1 + apiDocs.length"
 					:title="item.title"
 					:description="item.description"
 					:image="item.image"
+					@view="goToContent"
 				/>
 			</div>
 		</div>
@@ -48,9 +52,11 @@
 				<ContentCard
 					v-for="(item, index) in changelogs"
 					:key="index"
+					:id="index + 1 + apiDocs.length + codeDocs.length"
 					:title="item.title"
 					:description="item.description"
 					:image="item.image"
+					@view="goToContent"
 				/>
 			</div>
 		</div>
@@ -61,9 +67,11 @@
 				<ContentCard
 					v-for="(item, index) in internalDocs"
 					:key="index"
+					:id="index + 1 + apiDocs.length + codeDocs.length + changelogs.length"
 					:title="item.title"
 					:description="item.description"
 					:image="item.image"
+					@view="goToContent"
 				/>
 			</div>
 		</div>
@@ -71,9 +79,14 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 useSeoMeta({
 	title: 'Engineering'
 })
+const router = useRouter()
+function goToContent(id) {
+  router.push(`/dashboard/content`)
+}
 const apiDocs = [
 	{
 		title: 'Authentication API',

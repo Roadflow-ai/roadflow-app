@@ -32,60 +32,16 @@
 				</p>
 			</div>
 
-			<!-- Parameters Section -->
-			<div class="border-t pt-4">
-				<h3 class="text-lg font-medium text-gray-700 mb-3">Parameters</h3>
+			<!-- Dynamic Parameters Section -->
+			<WorkflowsDynamicTaskForm
+				:selectedTask="selectedTask"
+				v-model="formData.parameters"
+				:errors="parameterErrors"
+			/>
 
-				<!-- To Field -->
-				<div>
-					<label
-						for="parameters_to"
-						class="block text-sm font-medium text-gray-700 mb-1"
-					>
-						To <span class="text-red-500">*</span>
-					</label>
-					<input
-						type="text"
-						id="parameters_to"
-						v-model="formData.parameters.to"
-						required
-						:class="[
-							'bg-gray-50 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2',
-							errors.parameters_to
-								? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-								: 'border-gray-300 focus:ring-green-500 focus:border-green-500'
-						]"
-					/>
-					<p v-if="errors.parameters_to" class="mt-1 text-sm text-red-600">
-						{{ errors.parameters_to }}
-					</p>
-				</div>
-
-				<!-- Subject Field -->
-				<div class="mt-4">
-					<label
-						for="parameters_subject"
-						class="block text-sm font-medium text-gray-700 mb-1"
-					>
-						Subject (Parameters) <span class="text-red-500">*</span>
-					</label>
-					<input
-						type="text"
-						id="parameters_subject"
-						v-model="formData.parameters.Subject"
-						required
-						:class="[
-							'bg-gray-50 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2',
-							errors.parameters_subject
-								? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-								: 'border-gray-300 focus:ring-green-500 focus:border-green-500'
-						]"
-						placeholder="Result of the previous task"
-					/>
-					<p v-if="errors.parameters_subject" class="mt-1 text-sm text-red-600">
-						{{ errors.parameters_subject }}
-					</p>
-				</div>
+			<!-- General Error Display -->
+			<div v-if="generalError" class="p-3 bg-red-50 border border-red-200 rounded-md">
+				<p class="text-sm text-red-600">{{ generalError }}</p>
 			</div>
 
 			<!-- Buttons -->
@@ -115,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, computed, shallowReactive } from 'vue'
+import { ref, computed, shallowReactive, watch } from 'vue'
 
 const props = defineProps({
 	nodeId: String,
@@ -131,46 +87,99 @@ const { organizationId } = useUserStore()
 const { data } = await useApi('workflow/task/all')
 const tasksList = computed(() => data?.value?.data || [])
 
+// Get selected task object
+const selectedTask = computed(() => {
+	if (!formData.task_template_id) return null
+	return tasksList.value.find(task => task.id === formData.task_template_id)
+})
+
+// Helper function to get parameter fields (matches DynamicTaskForm logic)
+const getParameterFields = (task) => {
+	const defaultSchema = {
+		to: { type: 'email', label: 'To Email', required: true },
+		Subject: { type: 'text', label: 'Subject', required: true }
+	}
+	
+	// Return task schema if available, otherwise default
+	return task.parameters_schema || defaultSchema
+}
+
 const isSubmitting = ref(false)
 const generalError = ref('')
 
+// Load existing node data when modal opens
+const loadNodeData = async () => {
+	if (!props.nodeId || !props.open) return
+	
+	try {
+		const { data: nodeData } = await useApi(`workflow/${organizationId}/node/${props.nodeId}`)
+		const node = nodeData.value?.data
+		
+		if (node) {
+			formData.task_template_id = node.task_template_id || ''
+			formData.parameters = { ...node.parameters } || {}
+		}
+	} catch (error) {
+		console.error('Error loading node data:', error)
+		generalError.value = 'Failed to load node data'
+	}
+}
+
+// Watch for modal opening to load data
+watch(() => props.open, (isOpen) => {
+	if (isOpen) {
+		loadNodeData()
+	} else {
+		resetForm()
+	}
+})
+
 const formData = shallowReactive({
 	task_template_id: '',
-	parameters: {
-		to: '',
-		Subject: ''
-	}
+	parameters: {}
 })
 
 const errors = ref({
-	task_template_id: '',
-	parameters_to: '',
-	parameters_subject: ''
+	task_template_id: ''
 })
+
+const parameterErrors = ref({})
 
 const clearErrors = () => {
 	errors.value = {
-		task_template_id: '',
-		parameters_to: '',
-		parameters_subject: ''
+		task_template_id: ''
 	}
+	parameterErrors.value = {}
 }
 
 const validateForm = () => {
 	clearErrors()
+	generalError.value = ''
 	let isValid = true
 
 	if (!formData.task_template_id) {
 		errors.value.task_template_id = 'Task type is required'
 		isValid = false
 	}
-	if (!formData.parameters.to) {
-		errors.value.parameters_to = 'To field is required'
-		isValid = false
-	}
-	if (!formData.parameters.Subject) {
-		errors.value.parameters_subject = 'Subject (Parameters) is required'
-		isValid = false
+
+	// Dynamic parameter validation
+	if (selectedTask.value) {
+		const paramFields = getParameterFields(selectedTask.value)
+		Object.entries(paramFields).forEach(([fieldName, field]) => {
+			if (field.required && !formData.parameters[fieldName]) {
+				parameterErrors.value[fieldName] = `${field.label} is required`
+				isValid = false
+			}
+			
+			// Email validation
+			if (field.type === 'email' && formData.parameters[fieldName]) {
+				const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+				if (!emailRegex.test(formData.parameters[fieldName])) {
+					parameterErrors.value[fieldName] = 'Please enter a valid email address'
+					isValid = false
+				}
+			}
+		})
 	}
 
 	return isValid
@@ -199,8 +208,7 @@ const handleSubmit = async () => {
 
 const resetForm = () => {
 	formData.task_template_id = ''
-	formData.parameters.to = ''
-	formData.parameters.Subject = ''
+	formData.parameters = {}
 	clearErrors()
 }
 

@@ -50,7 +50,7 @@
 					<option
 						v-for="agent in agentsList"
 						:key="agent"
-						value="agent"
+						:value="agent"
 						class="capitalize"
 					>
 						{{ agent }}

@@ -5,7 +5,7 @@
 	>
 		<header class="flex items-start justify-between gap-4">
 			<h3 class="font-medium text-gray-900">{{ title }}</h3>
-			<template v-if="isTask">
+			<template v-if="!isHead">
 				<button
 					aria-label="Abrir menú"
 					type="button"
@@ -71,10 +71,16 @@
 				Head
 			</span>
 			<span
-				v-else
+				v-else-if="isTask"
 				class="bg-gray-50 text-gray-700 rounded-md px-3 py-1 text-sm"
 			>
 				Task
+			</span>
+			<span
+				v-else
+				class="bg-blue-50 text-blue-700 rounded-md px-3 py-1 text-sm"
+			>
+				Agent
 			</span>
 		</footer>
 

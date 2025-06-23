@@ -8,7 +8,7 @@
 </h1>
           <p class="text-lg text-gray-700 max-w-2xl">
             Roadflow AI automatizes the generation of useful, structured documentation for every team in your tech company.<br>
-            Keep your processes and knowledge always up-to-date, empower growth, customer success, and internal alignment, all from a single source.
+            Keep your processes and knowledge always up-to-date, empower growth, customer success, and internal alignment, all from a single source
           </p>
         </div>
 

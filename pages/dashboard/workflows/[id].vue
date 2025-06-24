@@ -99,24 +99,87 @@
         </div>
       </div>
 
-      <!-- Nodes Grid -->
+      <!-- Workflow Flow Layout -->
       <div v-else>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <WorkflowsNode
-            v-for="node in orderedNodes"
-            :key="node._id"
-            :nodeId="node._id"
-            :title="node.is_task ? node.task?.title : node.prompt"
-            :agent="node.agent"
-            :function_name="node?.task?.function_name"
-            :enabled="node.enabled"
-            :isHead="node.is_head"
-            :isTask="node.is_task"
-            :parameters="node.parameters"
-            :createdAt="node.createdAt"
-            @edited="refreshNodes"
-            @deleted="refreshNodes"
-          />
+        <!-- Flow Header -->
+        <div class="mb-6">
+          <h3 class="text-sm font-medium text-gray-700 mb-2">Execution Flow</h3>
+          <div class="text-xs text-gray-500">Nodes execute in the order shown below</div>
+        </div>
+
+        <!-- Flow Container -->
+        <div class="max-w-2xl mx-auto">
+          <div class="space-y-6">
+            <div
+              v-for="(node, index) in orderedNodes"
+              :key="node._id"
+              class="relative"
+            >
+              <!-- Execution Order Number -->
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 flex flex-col items-center">
+                  <!-- Step Number -->
+                  <div :class="[
+                    'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border-2',
+                    node.is_head ? 'bg-green-50 border-green-200 text-green-700' :
+                    node.is_task ? 'bg-gray-50 border-gray-200 text-gray-700' :
+                    'bg-blue-50 border-blue-200 text-blue-700'
+                  ]">
+                    {{ index + 1 }}
+                  </div>
+                  
+                  <!-- Flow Connector Line -->
+                  <div 
+                    v-if="index < orderedNodes.length - 1"
+                    class="w-0.5 h-16 bg-gray-200 mt-2"
+                  ></div>
+                </div>
+                
+                <!-- Node Card -->
+                <div class="flex-1 min-w-0">
+                  <WorkflowsNode
+                    :nodeId="node._id"
+                    :title="node.is_task ? node.task?.title : node.prompt"
+                    :agent="node.agent"
+                    :function_name="node?.task?.function_name"
+                    :enabled="node.enabled"
+                    :isHead="node.is_head"
+                    :isTask="node.is_task"
+                    :parameters="node.parameters"
+                    :createdAt="node.createdAt"
+                    :executionOrder="index + 1"
+                    @edited="refreshNodes"
+                    @deleted="refreshNodes"
+                  />
+                </div>
+              </div>
+
+              <!-- Next Flow Indicator -->
+              <div 
+                v-if="index < orderedNodes.length - 1"
+                class="flex items-center justify-center mt-3 mb-3"
+              >
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                  <span>Next</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flow End Indicator -->
+          <div class="flex items-center justify-center mt-8 pt-6 border-t border-gray-100">
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+              <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span>Workflow Complete</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -185,12 +248,64 @@ const headNodes = computed(() => rawNodes.value.filter(node => node.is_head));
 const agentNodes = computed(() => rawNodes.value.filter(node => !node.is_task));
 const taskNodes = computed(() => rawNodes.value.filter(node => node.is_task));
 
-// Order nodes with head nodes first, then agents, then tasks
+// Sort nodes using linked list structure based on next_flow
+const sortNodesByLinkedList = (nodes) => {
+  if (!nodes || nodes.length === 0) return [];
+  
+  // Create a map for O(1) lookup
+  const nodeMap = new Map();
+  nodes.forEach(node => nodeMap.set(node._id, node));
+  
+  // Find head node (starting point of linked list)
+  const headNode = nodes.find(node => node.is_head);
+  if (!headNode) {
+    console.warn('No head node found, falling back to original sorting');
+    return [...nodes];
+  }
+  
+  const sortedNodes = [];
+  let currentNode = headNode;
+  const visited = new Set();
+  
+  // Traverse the linked list using next_flow
+  while (currentNode && !visited.has(currentNode._id)) {
+    visited.add(currentNode._id);
+    sortedNodes.push(currentNode);
+    
+    // Move to next node if next_flow exists
+    if (currentNode.next_flow && nodeMap.has(currentNode.next_flow)) {
+      currentNode = nodeMap.get(currentNode.next_flow);
+    } else {
+      break;
+    }
+  }
+  
+  // Add any remaining nodes that weren't part of the linked list
+  const remainingNodes = nodes.filter(node => !visited.has(node._id));
+  if (remainingNodes.length > 0) {
+    console.warn('Found nodes not in linked list:', remainingNodes);
+    sortedNodes.push(...remainingNodes);
+  }
+  
+  return sortedNodes;
+};
+
+// Order nodes using linked list structure or fall back to type-based ordering
 const orderedNodes = computed(() => {
-  const head = rawNodes.value.filter(node => node.is_head);
-  const agents = rawNodes.value.filter(node => !node.is_task && !node.is_head);
-  const tasks = rawNodes.value.filter(node => node.is_task);
-  return [...head, ...agents, ...tasks];
+  const nodes = rawNodes.value;
+  
+  // Check if nodes have next_flow field for linked list sorting
+  const hasNextFlow = nodes.some(node => node.next_flow !== undefined);
+  
+  if (hasNextFlow) {
+    return sortNodesByLinkedList(nodes);
+  } else {
+    // Fallback to original sorting
+    const head = nodes.filter(node => node.is_head);
+    const agents = nodes.filter(node => !node.is_task && !node.is_head);
+    const tasks = nodes.filter(node => node.is_task);
+    return [...head, ...agents, ...tasks];
+  }
 });
 
 const refreshNodes = () => {

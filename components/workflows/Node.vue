@@ -2,9 +2,9 @@
 	<div
 		:class="[
 			'bg-white rounded-lg border hover:shadow-md w-full relative transition-all duration-200 group',
-			isHead ? 'border-green-200 hover:border-green-300' :
+			isHead ? 'border-green-200 hover:border-green-300 shadow-green-50' :
 			isTask ? 'border-gray-200 hover:border-gray-300' :
-			'border-blue-200 hover:border-blue-300'
+			'border-blue-200 hover:border-blue-300 shadow-blue-50'
 		]"
 		@mouseleave="menuOpen = false"
 	>
@@ -31,6 +31,8 @@
 						]">
 							{{ isHead ? 'HEAD' : isTask ? 'TASK' : 'AGENT' }}
 						</span>
+						<span v-if="executionOrder" class="text-gray-300">•</span>
+						<span v-if="executionOrder" class="text-gray-600 font-medium">Step {{ executionOrder }}</span>
 						<span v-if="agent || function_name" class="text-gray-300">•</span>
 						<span v-if="agent" class="capitalize truncate">{{ agent }}</span>
 						<span v-else-if="function_name" class="font-mono truncate">{{ function_name }}</span>
@@ -127,7 +129,8 @@ const props = defineProps({
 	function_name: String,
 	isHead: Boolean,
 	isTask: Boolean,
-	parameters: Object
+	parameters: Object,
+	executionOrder: Number
 })
 const emit = defineEmits(['edited', 'deleted'])
 

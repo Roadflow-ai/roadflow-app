@@ -1,96 +1,151 @@
 <template>
-  <div class="flex flex-col w-full h-full gap-8">
-    <div class="flex flex-col">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-2xl font-semibold text-gray-900">Input Webhooks</h3>
-        <button
-          @click="openCreateModal"
-          class="bg-green-700 text-white px-4 py-2 rounded-full hover:bg-green-800 transition-colors flex items-center gap-2"
-        >
-          <Icon name="uil:plus" size="20" />
-          Create Webhook
-        </button>
-      </div>
-
-      <div v-if="status === 'error'" class="text-red-500">
-        Error loading webhooks. Please try again later.
-      </div>
-      <div v-else-if="pending" class="text-gray-500">
-        Loading webhooks...
-      </div>
-      <div v-else-if="webhooks.length === 0 && status === 'success'" class="text-center py-8">
-        <Icon name="uil:web-grid" size="48" class="mx-auto text-gray-400 mb-4" />
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No webhooks yet</h3>
-        <p class="text-gray-500 mb-4">Create your first input webhook to start receiving events</p>
-        <button
-          @click="openCreateModal"
-          class="bg-green-700 text-white px-4 py-2 rounded-full hover:bg-green-800 transition-colors"
-        >
-          Create Webhook
-        </button>
-      </div>
-      <div
-        v-else-if="webhooks.length > 0 && status === 'success'"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-      >
-        <div
-          v-for="webhook in webhooks"
-          :key="webhook.id"
-          class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
-        >
-          <div class="flex justify-between items-start mb-4">
-            <div class="flex-1">
-              <h4 class="text-lg font-semibold text-gray-900 mb-1">
-                {{ webhook.name }}
-              </h4>
-              <p class="text-sm text-gray-600 mb-2">
-                {{ webhook.description }}
+  <NuxtLayout name="settings">
+    <div class="space-y-8">
+      <!-- Input Webhooks Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">Input Webhooks</h3>
+              <p class="mt-1 text-sm text-gray-600">
+                Configure external integrations and webhook endpoints
               </p>
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-              >
-                {{ webhook.type }}
-              </span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center space-x-3">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                {{ webhooks.length }} {{ webhooks.length === 1 ? 'webhook' : 'webhooks' }}
+              </span>
               <button
-                @click="copyWebhookUrl(webhook)"
-                class="text-gray-500 hover:text-gray-700 transition-colors p-1"
-                title="Copy webhook URL"
+                @click="openCreateModal"
+                class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition-colors flex items-center gap-2 text-sm font-medium"
               >
-                <Icon name="uil:copy" size="18" />
-              </button>
-              <button
-                @click="deleteWebhook(webhook.id)"
-                class="text-red-500 hover:text-red-700 transition-colors p-1"
-                title="Delete webhook"
-              >
-                <Icon name="uil:trash-alt" size="18" />
+                <Icon name="uil:plus" size="16" />
+                Create Webhook
               </button>
             </div>
           </div>
+        </div>
 
-          <div class="mt-4 space-y-3">
-            <div class="bg-gray-50 p-3 rounded-md">
-              <div class="flex justify-between items-center mb-2">
-                <p class="text-xs text-gray-500 font-medium">Webhook URL</p>
-                <button
-                  @click="copyWebhookUrl(webhook)"
-                  class="text-xs text-green-600 hover:text-green-800 font-medium"
-                >
-                  Copy
-                </button>
-              </div>
-              <p class="text-sm text-gray-700 font-mono break-all">
-                {{ getWebhookUrl(webhook) }}
-              </p>
+        <div class="p-6">
+          <!-- Loading State -->
+          <div v-if="pending" class="flex items-center justify-center py-12">
+            <div class="text-center">
+              <div class="w-8 h-8 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-3"></div>
+              <p class="text-sm text-gray-600">Loading webhooks...</p>
             </div>
-            
-            <div class="pt-2 border-t border-gray-100">
-              <p class="text-xs text-gray-500 mb-1">Created</p>
-              <p class="text-sm text-gray-700">
-                {{ formatDate(webhook.createdAt) }}
-              </p>
+          </div>
+
+          <!-- Error State -->
+          <div v-else-if="status === 'error'" class="text-center py-12">
+            <div class="text-red-500 mb-4">
+              <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Error loading webhooks</h3>
+            <p class="text-sm text-gray-600 mb-4">Please try refreshing the page or contact support if the issue persists.</p>
+            <button 
+              @click="refresh"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            >
+              <Icon name="uil:refresh" size="16" class="mr-2" />
+              Retry
+            </button>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else-if="webhooks.length === 0 && status === 'success'" class="text-center py-12">
+            <div class="mx-auto w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+              <Icon name="uil:web-grid" size="32" class="text-purple-600" />
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No webhooks yet</h3>
+            <p class="text-gray-500 mb-6 max-w-sm mx-auto">Create your first input webhook to start receiving events from external services</p>
+            <button
+              @click="openCreateModal"
+              class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition-colors inline-flex items-center gap-2"
+            >
+              <Icon name="uil:plus" size="16" />
+              Create Webhook
+            </button>
+          </div>
+
+          <!-- Webhooks Grid -->
+          <div
+            v-else-if="webhooks.length > 0 && status === 'success'"
+            class="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          >
+            <div
+              v-for="webhook in webhooks"
+              :key="webhook.id"
+              class="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:bg-gray-100 transition-all duration-200"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-3 mb-2">
+                    <h4 class="text-lg font-medium text-gray-900 truncate">
+                      {{ webhook.name }}
+                    </h4>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
+                      {{ webhook.type }}
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-600 mb-3">
+                    {{ webhook.description }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-1 ml-4">
+                  <button
+                    @click="copyWebhookUrl(webhook)"
+                    class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-md hover:bg-white"
+                    title="Copy webhook URL"
+                  >
+                    <Icon name="uil:copy" size="16" />
+                  </button>
+                  <button
+                    @click="deleteWebhook(webhook.id)"
+                    class="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-md hover:bg-white"
+                    title="Delete webhook"
+                  >
+                    <Icon name="uil:trash-alt" size="16" />
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <!-- Webhook URL -->
+                <div class="bg-white p-4 rounded-md border border-gray-200">
+                  <div class="flex justify-between items-center mb-2">
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Webhook URL</label>
+                    <button
+                      @click="copyWebhookUrl(webhook)"
+                      class="text-xs text-green-600 hover:text-green-800 font-medium transition-colors"
+                    >
+                      Copy URL
+                    </button>
+                  </div>
+                  <div class="bg-gray-50 p-2 rounded border">
+                    <code class="text-xs text-gray-700 break-all font-mono">
+                      {{ getWebhookUrl(webhook) }}
+                    </code>
+                  </div>
+                </div>
+                
+                <!-- Metadata -->
+                <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                  <div>
+                    <p class="text-xs text-gray-500">Created</p>
+                    <p class="text-sm font-medium text-gray-700">
+                      {{ formatDate(webhook.createdAt) }}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-xs text-gray-500">Status</p>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Active
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -103,7 +158,7 @@
       @close="createModalOpen = false"
       @created="handleWebhookCreated"
     />
-  </div>
+  </NuxtLayout>
 </template>
 
 <script setup>

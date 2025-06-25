@@ -70,6 +70,7 @@
 				v-for="(item, index) in menuItems"
 				:key="index"
 				:to="`${basePath}/${item.path}`"
+				@click="$emit('navigate')"
 				class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-200 rounded-lg transition-colors"
 				:class="{
 					'bg-green-100': activeRoute === `${basePath}/${item.path}`
@@ -86,6 +87,9 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '~/stores/user'
+
+// Define emits
+const emit = defineEmits(['navigate'])
 
 const route = useRoute()
 const userStore = useUserStore()

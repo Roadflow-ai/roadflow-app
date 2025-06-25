@@ -39,10 +39,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Filters -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-        <div class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="p-4 sm:p-6">
+          <div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-5 lg:gap-4">
             <!-- Search -->
-            <div class="md:col-span-2">
+            <div class="lg:col-span-2">
               <label
                 for="search"
                 class="block text-sm font-medium text-gray-700 mb-2"
@@ -239,75 +239,121 @@
 
         <!-- Logs Content -->
         <div v-else>
-          <!-- Table Header -->
-          <div class="px-6 py-3 border-b border-gray-200 bg-gray-50">
-            <div
-              class="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              <div class="col-span-2">Type</div>
-              <div class="col-span-2">Source Log Reference</div>
-              <div class="col-span-3">Data</div>
-              <div class="col-span-2">Source Event</div>
-              <div class="col-span-3">Created At</div>
+          <!-- Desktop Table View -->
+          <div class="hidden lg:block">
+            <!-- Table Header -->
+            <div class="px-6 py-3 border-b border-gray-200 bg-gray-50">
+              <div
+                class="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                <div class="col-span-2">Type</div>
+                <div class="col-span-2">Source Log Reference</div>
+                <div class="col-span-3">Data</div>
+                <div class="col-span-2">Source Event</div>
+                <div class="col-span-3">Created At</div>
+              </div>
+            </div>
+
+            <!-- Desktop Log Entries -->
+            <div class="divide-y divide-gray-200">
+              <div
+                v-for="log in logs"
+                :key="log.id"
+                class="px-6 py-4 hover:bg-gray-50 transition-colors"
+              >
+                <div class="grid grid-cols-12 gap-4 items-center cursor-pointer hover:bg-gray-50" @click="showLogDetail(log)">
+                  <!-- Type -->
+                  <div class="col-span-2">
+                    <span class="text-sm font-medium text-gray-900">{{ log.type || 'N/A' }}</span>
+                  </div>
+
+                  <!-- Source Log Reference -->
+                  <div class="col-span-2">
+                    <div class="flex flex-col space-y-1">
+                      <span v-if="log.source" class="text-sm text-gray-900 font-mono truncate">{{ log.source.substring(0, 12) }}...</span>
+                      <span v-else class="text-sm text-gray-500 italic">No reference</span>
+                      <span v-if="log.source_event?.type" class="text-xs text-gray-500">
+                        → {{ log.source_event.type }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Data -->
+                  <div class="col-span-3">
+                    <div class="text-sm text-gray-900 truncate">
+                      <span v-if="typeof log.data === 'string'">{{ log.data.substring(0, 80) }}{{ log.data.length > 80 ? '...' : '' }}</span>
+                      <span v-else-if="log.data && typeof log.data === 'object'">{{ JSON.stringify(log.data).substring(0, 80) }}...</span>
+                      <span v-else-if="Array.isArray(log.data)">Array ({{ log.data.length }} items)</span>
+                      <span v-else class="text-gray-500 italic">No data</span>
+                    </div>
+                  </div>
+
+                  <!-- Source Event -->
+                  <div class="col-span-2">
+                    <div class="flex flex-col space-y-1">
+                      <span v-if="log.source_event && typeof log.source_event === 'object'" class="text-sm text-gray-900">
+                        <span v-if="log.source_event.id" class="font-mono truncate">{{ log.source_event.id }}</span>
+                        <span v-else>Referenced log data</span>
+                      </span>
+                      <span v-else-if="log.source_event" class="text-sm text-gray-900">{{ log.source_event }}</span>
+                      <span v-else class="text-sm text-gray-500 italic">No source event</span>
+                      <span v-if="log.source_event?.createdAt" class="text-xs text-gray-500">
+                        {{ formatDate(log.source_event.createdAt) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Created At -->
+                  <div class="col-span-3">
+                    <div class="flex flex-col space-y-1">
+                      <span class="text-sm text-gray-900">{{ formatDateTime(log.createdAt) }}</span>
+                      <span class="text-xs text-gray-500 font-mono truncate">ID: {{ log.id.substring(0, 8) }}...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Log Entries -->
-          <div class="divide-y divide-gray-200">
+          <!-- Mobile Card View -->
+          <div class="lg:hidden space-y-4">
             <div
               v-for="log in logs"
               :key="log.id"
-              class="px-6 py-4 hover:bg-gray-50 transition-colors"
+              @click="showLogDetail(log)"
+              class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
             >
-              <div class="grid grid-cols-12 gap-4 items-center cursor-pointer hover:bg-gray-50" @click="showLogDetail(log)">
-                <!-- Type -->
-                <div class="col-span-2">
-                  <span class="text-sm font-medium text-gray-900">{{ log.type || 'N/A' }}</span>
+              <!-- Header: Type and Time -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {{ log.type || 'N/A' }}
+                  </span>
                 </div>
+                <span class="text-xs text-gray-500">{{ formatDateTime(log.createdAt) }}</span>
+              </div>
 
-                <!-- Source Log Reference -->
-                <div class="col-span-2">
-                  <div class="flex flex-col space-y-1">
-                    <span v-if="log.source" class="text-sm text-gray-900 font-mono truncate">{{ log.source.substring(0, 12) }}...</span>
-                    <span v-else class="text-sm text-gray-500 italic">No reference</span>
-                    <span v-if="log.source_event?.type" class="text-xs text-gray-500">
-                      → {{ log.source_event.type }}
-                    </span>
-                  </div>
-                </div>
+              <!-- Data Preview -->
+              <div class="mb-3">
+                <p class="text-sm text-gray-900 line-clamp-2">
+                  <span v-if="typeof log.data === 'string'">{{ log.data }}</span>
+                  <span v-else-if="log.data && typeof log.data === 'object'">{{ JSON.stringify(log.data).substring(0, 120) }}...</span>
+                  <span v-else-if="Array.isArray(log.data)">Array with {{ log.data.length }} items</span>
+                  <span v-else class="text-gray-500 italic">No data</span>
+                </p>
+              </div>
 
-                <!-- Data -->
-                <div class="col-span-3">
-                  <div class="text-sm text-gray-900 truncate">
-                    <span v-if="typeof log.data === 'string'">{{ log.data.substring(0, 80) }}{{ log.data.length > 80 ? '...' : '' }}</span>
-                    <span v-else-if="log.data && typeof log.data === 'object'">{{ JSON.stringify(log.data).substring(0, 80) }}...</span>
-                    <span v-else-if="Array.isArray(log.data)">Array ({{ log.data.length }} items)</span>
-                    <span v-else class="text-gray-500 italic">No data</span>
-                  </div>
+              <!-- Footer: Source Reference and ID -->
+              <div class="flex items-center justify-between text-xs text-gray-500">
+                <div class="flex items-center space-x-2">
+                  <span v-if="log.source" class="font-mono bg-gray-100 px-2 py-1 rounded">
+                    {{ log.source.substring(0, 8) }}...
+                  </span>
+                  <span v-if="log.source_event?.type" class="text-gray-400">
+                    → {{ log.source_event.type }}
+                  </span>
                 </div>
-
-                <!-- Source Event -->
-                <div class="col-span-2">
-                  <div class="flex flex-col space-y-1">
-                    <span v-if="log.source_event && typeof log.source_event === 'object'" class="text-sm text-gray-900">
-                      <span v-if="log.source_event.id" class="font-mono truncate">{{ log.source_event.id }}</span>
-                      <span v-else>Referenced log data</span>
-                    </span>
-                    <span v-else-if="log.source_event" class="text-sm text-gray-900">{{ log.source_event }}</span>
-                    <span v-else class="text-sm text-gray-500 italic">No source event</span>
-                    <span v-if="log.source_event?.createdAt" class="text-xs text-gray-500">
-                      {{ formatDate(log.source_event.createdAt) }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Created At -->
-                <div class="col-span-3">
-                  <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-900">{{ formatDateTime(log.createdAt) }}</span>
-                    <span class="text-xs text-gray-500 font-mono truncate">ID: {{ log.id.substring(0, 8) }}...</span>
-                  </div>
-                </div>
+                <span class="font-mono">{{ log.id.substring(0, 8) }}...</span>
               </div>
             </div>
           </div>
@@ -315,44 +361,70 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="totalPages > 1" class="mt-6 flex items-center justify-between">
-        <div class="text-sm text-gray-700">
-          Showing {{ getPageStartEntry() }}-{{ getPageEndEntry() }} of
-          {{ total }} entries
-        </div>
-        <nav class="flex items-center space-x-2">
+      <div v-if="totalPages > 1" class="mt-6">
+        <!-- Mobile Pagination -->
+        <div class="flex items-center justify-between sm:hidden">
           <button
             @click="goToPage(currentPage - 1)"
             :disabled="currentPage <= 1"
-            class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <Icon name="uil:angle-left" size="16" />
+            <Icon name="uil:angle-left" size="16" class="mr-1" />
+            Previous
           </button>
-
-          <div class="flex items-center space-x-1">
-            <button
-              v-for="page in visiblePages"
-              :key="page"
-              @click="goToPage(page)"
-              :class="[
-                'px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                page === currentPage
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50',
-              ]"
-            >
-              {{ page }}
-            </button>
-          </div>
-
+          <span class="text-sm text-gray-700">
+            {{ currentPage }} of {{ totalPages }}
+          </span>
           <button
             @click="goToPage(currentPage + 1)"
             :disabled="currentPage >= totalPages"
-            class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <Icon name="uil:angle-right" size="16" />
+            Next
+            <Icon name="uil:angle-right" size="16" class="ml-1" />
           </button>
-        </nav>
+        </div>
+
+        <!-- Desktop Pagination -->
+        <div class="hidden sm:flex sm:items-center sm:justify-between">
+          <div class="text-sm text-gray-700">
+            Showing {{ getPageStartEntry() }}-{{ getPageEndEntry() }} of
+            {{ total }} entries
+          </div>
+          <nav class="flex items-center space-x-2">
+            <button
+              @click="goToPage(currentPage - 1)"
+              :disabled="currentPage <= 1"
+              class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Icon name="uil:angle-left" size="16" />
+            </button>
+
+            <div class="flex items-center space-x-1">
+              <button
+                v-for="page in visiblePages"
+                :key="page"
+                @click="goToPage(page)"
+                :class="[
+                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  page === currentPage
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50',
+                ]"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button
+              @click="goToPage(currentPage + 1)"
+              :disabled="currentPage >= totalPages"
+              class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Icon name="uil:angle-right" size="16" />
+            </button>
+          </nav>
+        </div>
       </div>
     </div>
 

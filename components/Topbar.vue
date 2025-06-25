@@ -1,26 +1,42 @@
 <template>
   <header
-    class="h-16 bg-white shadow-sm flex items-center justify-between px-6"
+    class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6"
   >
-    <UiImageWithFallback
-      src="/roadflow.png"
-      alt="Roadflow Logo"
-      fallback-type="logo"
-      image-class="h-10 w-auto object-contain"
-      fallback-class="h-10 flex items-center justify-center"
-      container-class="h-10 flex items-center"
-      icon-size="w-8 h-8"
-    />
+    <!-- Mobile menu button -->
+    <button
+      @click="$emit('toggle-mobile-menu')"
+      class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
+    >
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+    </button>
+
+    <!-- Logo -->
+    <div class="flex items-center">
+      <UiImageWithFallback
+        src="/roadflow.png"
+        alt="Roadflow Logo"
+        fallback-type="logo"
+        image-class="h-8 sm:h-10 w-auto object-contain"
+        fallback-class="h-8 sm:h-10 flex items-center justify-center"
+        container-class="h-8 sm:h-10 flex items-center"
+        icon-size="w-6 h-6 sm:w-8 sm:h-8"
+      />
+    </div>
+
+    <!-- Welcome message - hidden on mobile -->
     <span
       v-if="userStore.userData?.first_name"
-      class="ml-6 text-lg font-semibold text-gray-700 capitalize"
+      class="hidden sm:block text-sm lg:text-lg font-semibold text-gray-700 capitalize"
     >
       Welcome {{ userStore.userData.first_name }}
     </span>
-    <div class="flex items-center space-x-4">
-      <button class="p-2 rounded-full hover:bg-gray-100">
+    <div class="flex items-center space-x-2 sm:space-x-4">
+      <!-- Notifications - hidden on mobile -->
+      <button class="hidden sm:block p-2 rounded-full hover:bg-gray-100">
         <svg
-          class="w-6 h-6"
+          class="w-5 h-5 sm:w-6 sm:h-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -33,9 +49,10 @@
           ></path>
         </svg>
       </button>
-      <button class="p-2 rounded-full hover:bg-gray-100">
+      <!-- Charts - hidden on mobile -->
+      <button class="hidden sm:block p-2 rounded-full hover:bg-gray-100">
         <svg
-          class="w-6 h-6"
+          class="w-5 h-5 sm:w-6 sm:h-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -54,7 +71,7 @@
           @click="showMenu = !showMenu"
         >
           <svg
-            class="w-6 h-6"
+            class="w-5 h-5 sm:w-6 sm:h-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -94,6 +111,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "~/stores/user";
 import { onClickOutside } from "@vueuse/core";
+
+// Define emits
+const emit = defineEmits(['toggle-mobile-menu'])
 
 const userStore = useUserStore();
 const showMenu = ref(false);

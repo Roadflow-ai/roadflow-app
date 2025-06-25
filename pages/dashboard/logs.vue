@@ -321,7 +321,7 @@ useSeoMeta({ title: "Logs" });
 const userStore = useUserStore();
 
 if (!userStore.organizationId) {
-  await userStore.fetchOrganization();
+  await userStore.fetchOrganizations();
 }
 
 const organizationId = computed(() => userStore.organizationId);

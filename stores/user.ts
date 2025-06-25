@@ -3,8 +3,9 @@ import { useCookie, useRuntimeConfig } from 'nuxt/app'
 import { ref, computed } from 'vue'
 
 export const useUserStore = defineStore('user', () => {
-	const organizationId = ref(null)
+	const organizationId = ref<string | null>(null)
 	const organization = ref<any>(null)
+	const organizations = ref<any[]>([])
 	const token = useCookie('auth_token')
 	const userData = ref<any>(null)
 	const config = useRuntimeConfig()
@@ -35,8 +36,8 @@ export const useUserStore = defineStore('user', () => {
 			token.value = access_token
 			userData.value = data
 
-			// Obtener la organización después del login
-			await fetchOrganization()
+			// Obtener las organizaciones después del login
+			await fetchOrganizations()
 
 			return true
 		} catch (error: any) {
@@ -45,10 +46,11 @@ export const useUserStore = defineStore('user', () => {
 		}
 	}
 
-	async function fetchOrganization() {
+	async function fetchOrganizations() {
 		if (!token.value) {
 			organizationId.value = null
 			organization.value = null
+			organizations.value = []
 			return
 		}
 
@@ -60,16 +62,43 @@ export const useUserStore = defineStore('user', () => {
 			})
 
 			if (!res.ok) {
-				throw new Error('No se pudo obtener datos de la organización')
+				throw new Error('No se pudo obtener datos de las organizaciones')
 			}
 
-			const orgs = await res.json()
-			organizationId.value = orgs[0]?.organizationId || null
-			organization.value = orgs[0]?.organization || null
+			const orgsData = await res.json()
+			organizations.value = orgsData || []
+			
+			// If no current organization selected, select the first one
+			if (!organizationId.value && orgsData.length > 0) {
+				switchOrganization(orgsData[0].organizationId)
+			} else if (organizationId.value) {
+				// Ensure current organization is still valid
+				const currentOrg = orgsData.find((org: any) => org.organizationId === organizationId.value)
+				if (currentOrg) {
+					organization.value = currentOrg.organization
+				} else {
+					// Current org no longer exists, switch to first available
+					if (orgsData.length > 0) {
+						switchOrganization(orgsData[0].organizationId)
+					} else {
+						organizationId.value = null
+						organization.value = null
+					}
+				}
+			}
 		} catch (error) {
+			console.error('Error fetching organizations:', error)
 			organizationId.value = null
 			organization.value = null
-			token.value = null
+			organizations.value = []
+		}
+	}
+
+	function switchOrganization(orgId: string) {
+		const targetOrg = organizations.value.find((org: any) => org.organizationId === orgId)
+		if (targetOrg) {
+			organizationId.value = orgId
+			organization.value = targetOrg.organization
 		}
 	}
 
@@ -77,6 +106,7 @@ export const useUserStore = defineStore('user', () => {
 		token.value = null
 		organizationId.value = null
 		organization.value = null
+		organizations.value = []
 		userData.value = null
 	}
 
@@ -91,5 +121,22 @@ export const useUserStore = defineStore('user', () => {
 		return ''
 	})
 
-	return { organizationId, organization, token, login, logout, isAuthenticated, fetchOrganization, userData, authorizationHeader }
+	return { 
+		organizationId, 
+		organization, 
+		organizations, 
+		token, 
+		login, 
+		logout, 
+		isAuthenticated, 
+		fetchOrganizations, 
+		switchOrganization, 
+		userData, 
+		authorizationHeader 
+	}
+}, {
+	persist: {
+		paths: ['organizationId', 'organization', 'organizations', 'userData'],
+		storage: typeof window !== 'undefined' ? localStorage : undefined
+	}
 })

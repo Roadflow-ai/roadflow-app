@@ -139,7 +139,7 @@ const userStore = useUserStore();
 const open = ref(false);
 
 if (!userStore.organizationId) {
-  await userStore.fetchOrganization();
+  await userStore.fetchOrganizations();
 }
 
 const organizationId = computed(() => userStore.organizationId);

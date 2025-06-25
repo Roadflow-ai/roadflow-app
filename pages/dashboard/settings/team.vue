@@ -126,7 +126,7 @@ useSeoMeta({ title: "Team Settings" });
 const userStore = useUserStore();
 
 if (!userStore.organizationId) {
-  await userStore.fetchOrganization();
+  await userStore.fetchOrganizations();
 }
 
 const organizationId = computed(() => userStore.organizationId);

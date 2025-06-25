@@ -2,10 +2,10 @@ import { defineNuxtRouteMiddleware, navigateTo, useCookie } from "nuxt/app";
 import { useUserStore } from "../stores/user";
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { isAuthenticated, fetchOrganization, organization } = useUserStore();
+  const { isAuthenticated, fetchOrganizations, organization } = useUserStore();
 
   if (import.meta.client && !organization) {
-    await fetchOrganization();
+    await fetchOrganizations();
   }
 
   const publicPages = ["/login", "/signup", "/verify", "/"];

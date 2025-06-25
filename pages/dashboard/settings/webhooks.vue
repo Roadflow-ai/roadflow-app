@@ -171,7 +171,7 @@ const createModalOpen = ref(false);
 const config = useRuntimeConfig();
 
 if (!userStore.organizationId) {
-  await userStore.fetchOrganization();
+  await userStore.fetchOrganizations();
 }
 
 const organizationId = computed(() => userStore.organizationId);

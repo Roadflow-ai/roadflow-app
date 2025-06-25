@@ -244,22 +244,72 @@
             <div
               class="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              <div class="col-span-2">Type & Source</div>
-              <div class="col-span-2">Agent & Source ID</div>
-              <div class="col-span-4">Data</div>
-              <div class="col-span-2">Source Events</div>
-              <div class="col-span-2">ID & Timestamp</div>
+              <div class="col-span-2">Type</div>
+              <div class="col-span-2">Source Log Reference</div>
+              <div class="col-span-3">Data</div>
+              <div class="col-span-2">Source Event</div>
+              <div class="col-span-3">Created At</div>
             </div>
           </div>
 
           <!-- Log Entries -->
           <div class="divide-y divide-gray-200">
-            <LogsEntry
+            <div
               v-for="log in logs"
               :key="log.id"
-              :log="log"
-              @showDetail="showLogDetail"
-            />
+              class="px-6 py-4 hover:bg-gray-50 transition-colors"
+            >
+              <div class="grid grid-cols-12 gap-4 items-center cursor-pointer hover:bg-gray-50" @click="showLogDetail(log)">
+                <!-- Type -->
+                <div class="col-span-2">
+                  <span class="text-sm font-medium text-gray-900">{{ log.type || 'N/A' }}</span>
+                </div>
+
+                <!-- Source Log Reference -->
+                <div class="col-span-2">
+                  <div class="flex flex-col space-y-1">
+                    <span v-if="log.source" class="text-sm text-gray-900 font-mono truncate">{{ log.source.substring(0, 12) }}...</span>
+                    <span v-else class="text-sm text-gray-500 italic">No reference</span>
+                    <span v-if="log.source_event?.type" class="text-xs text-gray-500">
+                      → {{ log.source_event.type }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Data -->
+                <div class="col-span-3">
+                  <div class="text-sm text-gray-900 truncate">
+                    <span v-if="typeof log.data === 'string'">{{ log.data.substring(0, 80) }}{{ log.data.length > 80 ? '...' : '' }}</span>
+                    <span v-else-if="log.data && typeof log.data === 'object'">{{ JSON.stringify(log.data).substring(0, 80) }}...</span>
+                    <span v-else-if="Array.isArray(log.data)">Array ({{ log.data.length }} items)</span>
+                    <span v-else class="text-gray-500 italic">No data</span>
+                  </div>
+                </div>
+
+                <!-- Source Event -->
+                <div class="col-span-2">
+                  <div class="flex flex-col space-y-1">
+                    <span v-if="log.source_event && typeof log.source_event === 'object'" class="text-sm text-gray-900">
+                      <span v-if="log.source_event.id" class="font-mono truncate">{{ log.source_event.id }}</span>
+                      <span v-else>Referenced log data</span>
+                    </span>
+                    <span v-else-if="log.source_event" class="text-sm text-gray-900">{{ log.source_event }}</span>
+                    <span v-else class="text-sm text-gray-500 italic">No source event</span>
+                    <span v-if="log.source_event?.createdAt" class="text-xs text-gray-500">
+                      {{ formatDate(log.source_event.createdAt) }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Created At -->
+                <div class="col-span-3">
+                  <div class="flex flex-col space-y-1">
+                    <span class="text-sm text-gray-900">{{ formatDateTime(log.createdAt) }}</span>
+                    <span class="text-xs text-gray-500 font-mono truncate">ID: {{ log.id.substring(0, 8) }}...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -307,15 +357,104 @@
     </div>
 
     <!-- Log Detail Modal -->
-    <LogsDetailModal
-      :open="showDetailModal"
-      :log="selectedLog"
-      @close="closeLogDetail"
-    />
+    <div v-if="showDetailModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeLogDetail"></div>
+
+        <!-- Modal content -->
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Log Details</h3>
+            <button
+              @click="closeLogDetail"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <Icon name="uil:times" size="20" />
+            </button>
+          </div>
+
+          <div v-if="selectedLog" class="space-y-4">
+            <!-- Log ID -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">ID</label>
+              <p class="text-sm text-gray-900 font-mono bg-gray-50 p-2 rounded">{{ selectedLog.id }}</p>
+            </div>
+
+            <!-- Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <p class="text-sm text-gray-900">{{ selectedLog.type || 'N/A' }}</p>
+            </div>
+
+            <!-- Source Log Reference -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Source Log Reference</label>
+              <div class="bg-gray-50 p-3 rounded">
+                <p v-if="selectedLog.source" class="text-sm text-gray-900 font-mono mb-1">{{ selectedLog.source }}</p>
+                <p v-else class="text-sm text-gray-500 italic">No source log reference</p>
+                <p v-if="selectedLog.source_event?.type" class="text-xs text-gray-600">
+                  References a <strong>{{ selectedLog.source_event.type }}</strong> log
+                </p>
+              </div>
+            </div>
+
+            <!-- Source Event (Referenced Log) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Source Event (Referenced Log Data)</label>
+              <div class="bg-gray-50 p-3 rounded max-h-40 overflow-y-auto">
+                <div v-if="selectedLog.source_event" class="space-y-2">
+                  <div v-if="selectedLog.source_event.id" class="text-xs text-gray-600 border-b border-gray-200 pb-1">
+                    <strong>Referenced Log ID:</strong> {{ selectedLog.source_event.id }}
+                  </div>
+                  <div v-if="selectedLog.source_event.type" class="text-xs text-gray-600">
+                    <strong>Type:</strong> {{ selectedLog.source_event.type }}
+                  </div>
+                  <div v-if="selectedLog.source_event.createdAt" class="text-xs text-gray-600">
+                    <strong>Created:</strong> {{ formatDateTime(selectedLog.source_event.createdAt) }}
+                  </div>
+                  <div v-if="selectedLog.source_event.data" class="mt-2">
+                    <div class="text-xs text-gray-600 mb-1"><strong>Data:</strong></div>
+                    <pre class="text-sm text-gray-900 whitespace-pre-wrap">{{ formatLogData(selectedLog.source_event.data) }}</pre>
+                  </div>
+                </div>
+                <p v-else class="text-sm text-gray-500 italic">No source event data</p>
+              </div>
+            </div>
+
+            <!-- Data -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+              <div class="bg-gray-50 p-3 rounded max-h-40 overflow-y-auto">
+                <pre class="text-sm text-gray-900 whitespace-pre-wrap">{{ formatLogData(selectedLog.data) }}</pre>
+              </div>
+            </div>
+
+            <!-- Created At -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+              <p class="text-sm text-gray-900">{{ formatDateTime(selectedLog.createdAt) }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-6 flex justify-end">
+            <button
+              @click="closeLogDetail"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
+import dayjs from 'dayjs';
+
 useSeoMeta({ title: "Logs" });
 
 const userStore = useUserStore();
@@ -436,6 +575,23 @@ const showLogDetail = (log) => {
 const closeLogDetail = () => {
   showDetailModal.value = false;
   selectedLog.value = null;
+};
+
+// Helper functions for formatting
+const formatDate = (date) => {
+  if (!date) return 'N/A';
+  return dayjs(date).format('MMM D, YYYY');
+};
+
+const formatDateTime = (date) => {
+  if (!date) return 'N/A';
+  return dayjs(date).format('MMM D, YYYY h:mm A');
+};
+
+const formatLogData = (data) => {
+  if (!data) return 'No data';
+  if (typeof data === 'string') return data;
+  return JSON.stringify(data, null, 2);
 };
 
 // Watch for organization changes

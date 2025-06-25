@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     await fetchOrganization();
   }
 
-  const publicPages = ["/login", "/signup", "/verify"];
+  const publicPages = ["/login", "/signup", "/verify","/"];
 
   if (!isAuthenticated() && !publicPages.includes(to.path)) {
     const redirectCookie = useCookie("redirectTo");

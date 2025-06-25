@@ -1,36 +1,37 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-white p-6">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-white p-4 sm:p-6">
     <!-- Header -->
-    <div class="max-w-7xl mx-auto mb-8">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="max-w-7xl mx-auto mb-6 sm:mb-8">
+      <div class="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div>
-          <h1 class="text-4xl font-bold text-gray-900 mb-2">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
             Welcome back, {{ organization?.name || 'User' }}!
           </h1>
-          <p class="text-gray-600">
+          <p class="text-gray-600 text-sm sm:text-base">
             Here's your workflow automation overview and quick actions.
           </p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex justify-start md:justify-end">
           <NuxtLink
             to="/dashboard/workflows"
-            class="px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl flex items-center gap-2"
+            class="px-4 sm:px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl flex items-center gap-2 text-sm sm:text-base min-h-[48px] touch-manipulation"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Create Workflow
+            <span class="hidden sm:inline">Create Workflow</span>
+            <span class="sm:hidden">Create</span>
           </NuxtLink>
         </div>
       </div>
     </div>
 
     <!-- Dashboard Grid -->
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
       <!-- Main Content - Left Side -->
-      <div class="lg:col-span-2 space-y-6">
+      <div class="lg:col-span-2 space-y-4 sm:space-y-6">
         <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Active Workflows -->
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between">

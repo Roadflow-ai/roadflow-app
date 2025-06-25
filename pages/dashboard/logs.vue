@@ -3,31 +3,31 @@
     <!-- Logs Header -->
     <div class="bg-white border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="py-6">
-          <div class="flex items-center justify-between">
+        <div class="py-4 sm:py-6">
+          <div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <div>
-              <h1 class="text-2xl font-bold text-gray-900">Logs</h1>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Logs</h1>
               <p class="mt-1 text-sm text-gray-600">
                 View and monitor your organization's activity logs
               </p>
             </div>
-            <div class="flex items-center space-x-3">
-              <div class="bg-blue-50 px-3 py-1 rounded-full">
+            <div class="flex items-center justify-between sm:justify-end space-x-3">
+              <div class="bg-blue-50 px-2.5 sm:px-3 py-1 rounded-full">
                 <span class="text-xs font-medium text-blue-700">
-                  {{ total || 0 }} total entries
+                  {{ total || 0 }} {{ total === 1 ? 'entry' : 'entries' }}
                 </span>
               </div>
               <button
                 @click="refresh"
                 :disabled="pending"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[40px]"
               >
                 <Icon
                   name="uil:refresh"
                   size="16"
-                  :class="['mr-2', { 'animate-spin': pending }]"
+                  :class="['sm:mr-2', { 'animate-spin': pending }]"
                 />
-                Refresh
+                <span class="hidden sm:inline">Refresh</span>
               </button>
             </div>
           </div>
@@ -140,26 +140,25 @@
 
           <!-- Filter Actions -->
           <div
-            class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200"
+            class="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mt-4 pt-4 border-t border-gray-200"
           >
             <div class="text-sm text-gray-500">
-              Showing {{ logs.length }} of {{ total || 0 }} entries
-              <span v-if="totalPages > 1">
-                ({{ pageLimit }} per page, page {{ currentPage }} of
-                {{ totalPages }})
+              <span class="block sm:inline">Showing {{ logs.length }} of {{ total || 0 }} entries</span>
+              <span v-if="totalPages > 1" class="block sm:inline sm:ml-1">
+                ({{ pageLimit }} per page, page {{ currentPage }} of {{ totalPages }})
               </span>
             </div>
             <div class="flex items-center space-x-2">
               <button
                 @click="clearFilters"
                 v-if="hasActiveFilters"
-                class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors min-h-[40px]"
               >
                 Clear filters
               </button>
               <button
                 @click="applyFilters"
-                class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors min-h-[40px]"
               >
                 Apply Filters
               </button>
@@ -316,44 +315,59 @@
           </div>
 
           <!-- Mobile Card View -->
-          <div class="lg:hidden space-y-4">
+          <div class="lg:hidden space-y-3">
             <div
               v-for="log in logs"
               :key="log.id"
               @click="showLogDetail(log)"
-              class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md active:shadow-lg transition-all cursor-pointer touch-manipulation"
             >
               <!-- Header: Type and Time -->
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ log.type || 'N/A' }}
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-2 min-w-0 flex-1">
+                  <span 
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                    :class="getTypeBadgeClass(log.type)"
+                  >
+                    {{ log.type || 'Unknown' }}
+                  </span>
+                  <span v-if="log.source_event?.type" class="text-xs text-gray-400 truncate">
+                    → {{ log.source_event.type }}
                   </span>
                 </div>
-                <span class="text-xs text-gray-500">{{ formatDateTime(log.createdAt) }}</span>
+                <div class="text-right ml-2 flex-shrink-0">
+                  <div class="text-xs font-medium text-gray-900">{{ formatTime(log.createdAt) }}</div>
+                  <div class="text-xs text-gray-500">{{ formatDate(log.createdAt) }}</div>
+                </div>
               </div>
 
               <!-- Data Preview -->
               <div class="mb-3">
-                <p class="text-sm text-gray-900 line-clamp-2">
-                  <span v-if="typeof log.data === 'string'">{{ log.data }}</span>
-                  <span v-else-if="log.data && typeof log.data === 'object'">{{ JSON.stringify(log.data).substring(0, 120) }}...</span>
-                  <span v-else-if="Array.isArray(log.data)">Array with {{ log.data.length }} items</span>
-                  <span v-else class="text-gray-500 italic">No data</span>
+                <p class="text-sm text-gray-900 leading-relaxed">
+                  <span v-if="typeof log.data === 'string'" class="break-words">
+                    {{ log.data.length > 100 ? log.data.substring(0, 100) + '...' : log.data }}
+                  </span>
+                  <span v-else-if="log.data && typeof log.data === 'object'" class="font-mono text-sm break-all">
+                    {{ JSON.stringify(log.data).substring(0, 100) }}...
+                  </span>
+                  <span v-else-if="Array.isArray(log.data)" class="italic text-gray-600">
+                    Array with {{ log.data.length }} {{ log.data.length === 1 ? 'item' : 'items' }}
+                  </span>
+                  <span v-else class="text-gray-500 italic">No data available</span>
                 </p>
               </div>
 
               <!-- Footer: Source Reference and ID -->
-              <div class="flex items-center justify-between text-xs text-gray-500">
-                <div class="flex items-center space-x-2">
-                  <span v-if="log.source" class="font-mono bg-gray-100 px-2 py-1 rounded">
-                    {{ log.source.substring(0, 8) }}...
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div class="flex items-center space-x-2 min-w-0 flex-1">
+                  <span v-if="log.source" class="inline-flex items-center font-mono bg-gray-100 px-2 py-1 rounded text-xs text-gray-600 truncate max-w-[120px]">
+                    {{ log.source.substring(0, 12) }}...
                   </span>
-                  <span v-if="log.source_event?.type" class="text-gray-400">
-                    → {{ log.source_event.type }}
-                  </span>
+                  <span v-else class="text-xs text-gray-400 italic">No reference</span>
                 </div>
-                <span class="font-mono">{{ log.id.substring(0, 8) }}...</span>
+                <span class="font-mono text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded ml-2 flex-shrink-0">
+                  {{ log.id.substring(0, 8) }}...
+                </span>
               </div>
             </div>
           </div>
@@ -427,6 +441,7 @@
         </div>
       </div>
     </div>
+    </div>
 
     <!-- Log Detail Modal -->
     <div v-if="showDetailModal" class="fixed inset-0 z-50 overflow-y-auto">
@@ -435,41 +450,52 @@
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeLogDetail"></div>
 
         <!-- Modal content -->
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Log Details</h3>
-            <button
-              @click="closeLogDetail"
-              class="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <Icon name="uil:times" size="20" />
-            </button>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-full max-w-lg sm:max-w-2xl mx-4 sm:mx-0">
+          <!-- Header -->
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-medium text-gray-900">Log Details</h3>
+              <button
+                @click="closeLogDetail"
+                class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+              >
+                <Icon name="uil:times" size="20" />
+              </button>
+            </div>
           </div>
 
-          <div v-if="selectedLog" class="space-y-4">
-            <!-- Log ID -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">ID</label>
-              <p class="text-sm text-gray-900 font-mono bg-gray-50 p-2 rounded">{{ selectedLog.id }}</p>
-            </div>
+          <!-- Content -->
+          <div class="px-4 py-4 sm:px-6 sm:py-5 max-h-[70vh] overflow-y-auto">
 
-            <!-- Type -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-              <p class="text-sm text-gray-900">{{ selectedLog.type || 'N/A' }}</p>
-            </div>
-
-            <!-- Source Log Reference -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Source Log Reference</label>
-              <div class="bg-gray-50 p-3 rounded">
-                <p v-if="selectedLog.source" class="text-sm text-gray-900 font-mono mb-1">{{ selectedLog.source }}</p>
-                <p v-else class="text-sm text-gray-500 italic">No source log reference</p>
-                <p v-if="selectedLog.source_event?.type" class="text-xs text-gray-600">
-                  References a <strong>{{ selectedLog.source_event.type }}</strong> log
-                </p>
+            <div v-if="selectedLog" class="space-y-4">
+              <!-- Log ID -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ID</label>
+                <p class="text-sm text-gray-900 font-mono bg-gray-50 p-3 rounded break-all">{{ selectedLog.id }}</p>
               </div>
-            </div>
+
+              <!-- Type -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <span 
+                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                  :class="getTypeBadgeClass(selectedLog.type)"
+                >
+                  {{ selectedLog.type || 'Unknown' }}
+                </span>
+              </div>
+
+              <!-- Source Log Reference -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Source Log Reference</label>
+                <div class="bg-gray-50 p-3 rounded">
+                  <p v-if="selectedLog.source" class="text-sm text-gray-900 font-mono mb-2 break-all">{{ selectedLog.source }}</p>
+                  <p v-else class="text-sm text-gray-500 italic">No source log reference</p>
+                  <p v-if="selectedLog.source_event?.type" class="text-xs text-gray-600">
+                    References a <span class="font-medium">{{ selectedLog.source_event.type }}</span> log
+                  </p>
+                </div>
+              </div>
 
             <!-- Source Event (Referenced Log) -->
             <div>
@@ -509,14 +535,16 @@
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="mt-6 flex justify-end">
-            <button
-              @click="closeLogDetail"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-            >
-              Close
-            </button>
+          <!-- Footer -->
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:py-4 border-t border-gray-200">
+            <div class="flex justify-end">
+              <button
+                @click="closeLogDetail"
+                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors min-h-[40px]"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -664,6 +692,28 @@ const formatLogData = (data) => {
   if (!data) return 'No data';
   if (typeof data === 'string') return data;
   return JSON.stringify(data, null, 2);
+};
+
+const formatTime = (date) => {
+  if (!date) return 'N/A';
+  return dayjs(date).format('h:mm A');
+};
+
+const getTypeBadgeClass = (type) => {
+  const typeClasses = {
+    'error': 'bg-red-100 text-red-800',
+    'warning': 'bg-yellow-100 text-yellow-800',
+    'info': 'bg-blue-100 text-blue-800',
+    'success': 'bg-green-100 text-green-800',
+    'debug': 'bg-gray-100 text-gray-800',
+    'webhook': 'bg-purple-100 text-purple-800',
+    'api': 'bg-indigo-100 text-indigo-800',
+    'system': 'bg-orange-100 text-orange-800',
+    'user': 'bg-teal-100 text-teal-800',
+    'workflow': 'bg-pink-100 text-pink-800'
+  };
+  
+  return typeClasses[type?.toLowerCase()] || 'bg-gray-100 text-gray-800';
 };
 
 // Watch for organization changes
